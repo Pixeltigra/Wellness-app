@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wellness Diary - Дневник самочувствия</title>
+    <link rel="stylesheet" href="styles/apple-weather.css">
+    <link rel="stylesheet" href="styles/index_style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+</head>
+<body>
+    <!-- Боковая панель навигации -->
+    <nav class="sidebar">
+        <div class="logo">
+            <i class="fas fa-heartbeat"></i>
+            <h1>Wellness Diary</h1>
+        </div>
+        
+        <div class="user-info">
+            <div class="avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="user-details">
+                <h3 id="user-name">Пользователь</h3>
+                <p id="user-city">Москва</p>
+            </div>
+        </div>
+        
+        <ul class="nav-menu">
+            <li class="nav-item active" data-section="dashboard">
+                <i class="fas fa-home"></i>
+                <span>Главная</span>
+            </li>
+            <li class="nav-item" data-section="add-entry">
+                <i class="fas fa-plus-circle"></i>
+                <span>Добавить запись</span>
+            </li>
+            <li class="nav-item" data-section="calendar">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Календарь</span>
+            </li>
+            <li class="nav-item" data-section="analysis">
+                <i class="fas fa-chart-line"></i>
+                <span>Анализ</span>
+            </li>
+            <li class="nav-item" data-section="weather">
+                <i class="fas fa-cloud-sun"></i>
+                <span>Погода</span>
+            </li>
+            <li class="nav-item" data-section="settings">
+                <i class="fas fa-cog"></i>
+                <span>Настройки</span>
+            </li>
+        </ul>
+        
+        <div class="app-version">
+            <p>Версия 2.0</p>
+        </div>
+    </nav>
+
+    <!-- Кнопка меню для мобильных устройств -->
+    <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Основное содержание -->
+    <main class="main-content">
+        <!-- Заголовок и дата -->
+        <header class="page-header">
+            <div class="header-left">
+                <h2 id="page-title">Главная панель</h2>
+                <p id="current-date" class="date-display"></p>
+            </div>
+            <div class="header-right">
+                <button class="btn-refresh" id="refresh-data">
+                    <i class="fas fa-sync-alt"></i> Обновить
+                </button>
+            </div>
+        </header>
+
+        <!-- Секции контента -->
+        <section id="dashboard" class="content-section active">
+            <div class="dashboard-grid">
+                <!-- Прогноз на сегодня -->
+                <div class="card forecast-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-brain"></i> Прогноз самочувствия на сегодня</h3>
+                        <span class="card-date" id="today-date"></span>
+                    </div>
+                    <div class="forecast-content">
+                        <div class="forecast-main">
+                            <div class="forecast-icon">
+                                <i class="fas fa-smile" id="forecast-emoji"></i>
+                            </div>
+                            <div class="forecast-details">
+                                <div class="forecast-score">
+                                    <span class="score-value" id="forecast-value">7.5</span>
+                                    <span class="score-max">/10</span>
+                                </div>
+                                <p class="forecast-text" id="forecast-text">Ожидается хорошее самочувствие</p>
+                            </div>
+                        </div>
+                        <div class="forecast-factors">
+                            <h4>Влияющие факторы:</h4>
+                            <div class="factors-list" id="forecast-factors">
+                                <!-- Факторы будут добавляться динамически -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Текущая погода -->
+                <div class="card weather-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-cloud-sun"></i> Текущая погода</h3>
+                        <button class="btn-small" id="update-weather">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <div class="weather-content">
+                        <div class="weather-main">
+                            <div class="weather-icon" id="weather-icon">☀️</div>
+                            <div class="weather-temp">
+                                <span id="current-temp">-5°C</span>
+                                <p id="weather-desc">Пасмурно</p>
+                            </div>
+                        </div>
+                        <div class="weather-details">
+                            <div class="weather-item">
+                                <i class="fas fa-tachometer-alt"></i>
+                                <span>Давление: <span id="pressure">765</span> мм рт.ст.</span>
+                            </div>
+                            <div class="weather-item">
+                                <i class="fas fa-tint"></i>
+                                <span>Влажность: <span id="humidity">85</span>%</span>
+                            </div>
+                            <div class="weather-item">
+                                <i class="fas fa-wind"></i>
+                                <span>Ветер: <span id="wind">3</span> м/с</span>
+                            </div>
+                            <div class="weather-item">
+                                <i class="fas fa-magnet"></i>
+                                <span>Магнитная активность: <span id="magnetic">спокойно</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Быстрый ввод состояния -->
+                <div class="card quick-entry-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-bolt"></i> Быстрая запись</h3>
+                    </div>
+                    <div class="quick-entry-content">
+                        <div class="wellness-scale">
+                            <label>Общее самочувствие (0-10):</label>
+                            <div class="scale-container">
+                                <input type="range" min="0" max="10" value="7" class="slider" id="quick-wellness">
+                                <div class="scale-labels">
+                                    <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span>
+                                    <span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
+                                </div>
+                                <div class="scale-value" id="quick-value">7</div>
+                            </div>
+                        </div>
+                        <div class="quick-symptoms">
+                            <label>Основные симптомы:</label>
+                            <div class="symptoms-grid" id="quick-symptoms">
+                                <!-- Симптомы будут добавляться динамически -->
+                            </div>
+                        </div>
+                        <button class="btn-primary" id="save-quick-entry">
+                            <i class="fas fa-save"></i> Сохранить запись
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Последние записи -->
+                <div class="card recent-entries-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-history"></i> Последние записи</h3>
+                        <a href="#" class="view-all" data-section="calendar">Все записи →</a>
+                    </div>
+                    <div class="recent-entries-content">
+                        <div class="entries-list" id="recent-entries">
+                            <!-- Записи будут добавляться динамически -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Секция добавления записи -->
+        <section id="add-entry" class="content-section">
+            <div class="section-header">
+                <h2><i class="fas fa-plus-circle"></i> Новая запись о самочувствии</h2>
+                <p>Заполните подробную информацию о вашем состоянии</p>
+            </div>
+            
+            <div class="entry-form-container">
+                <form id="wellness-entry-form">
+                    <!-- Дата и время -->
+                    <div class="form-section">
+                        <h3><i class="far fa-calendar"></i> Дата и время</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="entry-date">Дата</label>
+                                <input type="date" id="entry-date" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="entry-time">Время</label>
+                                <input type="time" id="entry-time" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>&nbsp;</label>
+                                <button type="button" id="use-current-time" class="btn-secondary">
+                                    <i class="far fa-clock"></i> Текущее время
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Общее самочувствие -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-heart"></i> Общее самочувствие</h3>
+                        <div class="wellness-rating">
+                            <label>Оцените ваше общее состояние (0 - очень плохо, 10 - отлично):</label>
+                            <div class="rating-scale">
+                                <div class="scale-numbers">
+                                    <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span>
+                                    <span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
+                                </div>
+                                <input type="range" min="0" max="10" value="7" class="slider-large" id="wellness-rating">
+                                <div class="scale-labels-large">
+                                    <span>Очень плохо</span>
+                                    <span>Нормально</span>
+                                    <span>Отлично</span>
+                                </div>
+                                <div class="rating-value">
+                                    <span id="rating-display">7</span>/10
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Категории симптомов -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-stethoscope"></i> Симптомы</h3>
+                        <p class="section-description">Отметьте симптомы, которые вы испытываете</p>
+                        
+                        <div class="symptoms-categories">
+                            <!-- Головная боль -->
+                            <div class="symptom-category">
+                                <h4><i class="fas fa-head-side-virus"></i> Головная боль</h4>
+                                <div class="symptoms-grid" id="headache-symptoms">
+                                    <!-- Симптомы будут добавляться динамически -->
+                                </div>
+                            </div>
+                            
+                            <!-- Головокружение -->
+                            <div class="symptom-category">
+                                <h4><i class="fas fa-dizzy"></i> Головокружение</h4>
+                                <div class="symptoms-grid" id="dizziness-symptoms">
+                                    <!-- Симптомы будут добавляться динамически -->
+                                </div>
+                            </div>
+                            
+                            <!-- Общее состояние -->
+                            <div class="symptom-category">
+                                <h4><i class="fas fa-user-injured"></i> Общее состояние</h4>
+                                <div class="symptoms-grid" id="general-symptoms">
+                                    <!-- Симптомы будут добавляться динамически -->
+                                </div>
+                            </div>
+                            
+                            <!-- Боль в других частях тела -->
+                            <div class="symptom-category">
+                                <h4><i class="fas fa-bone"></i> Боль в других частях тела</h4>
+                                <div class="symptoms-grid" id="pain-symptoms">
+                                    <!-- Симптомы будут добавляться динамически -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Факторы образа жизни -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-running"></i> Факторы образа жизни</h3>
+                        
+                        <div class="lifestyle-factors">
+                            <!-- Сон -->
+                            <div class="factor-group">
+                                <h4><i class="fas fa-bed"></i> Сон</h4>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="sleep-hours">Часы сна</label>
+                                        <input type="number" id="sleep-hours" min="0" max="24" step="0.5" 
+                                               class="form-control" placeholder="7.5">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="sleep-quality">Качество сна (1-10)</label>
+                                        <input type="range" min="1" max="10" value="7" 
+                                               class="slider" id="sleep-quality">
+                                        <div class="slider-value" id="sleep-quality-value">7</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Физическая активность -->
+                            <div class="factor-group">
+                                <h4><i class="fas fa-dumbbell"></i> Физическая активность</h4>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Уровень активности</label>
+                                        <div class="radio-group">
+                                            <label class="radio-option">
+                                                <input type="radio" name="activity" value="none" checked>
+                                                <span class="radio-label">Нет нагрузки</span>
+                                            </label>
+                                            <label class="radio-option">
+                                                <input type="radio" name="activity" value="light">
+                                                <span class="radio-label">Легкая</span>
+                                            </label>
+                                            <label class="radio-option">
+                                                <input type="radio" name="activity" value="moderate">
+                                                <span class="radio-label">Умеренная</span>
+                                            </label>
+                                            <label class="radio-option">
+                                                <input type="radio" name="activity" value="high">
+                                                <span class="radio-label">Высокая</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="activity-duration">Длительность (мин)</label>
+                                        <input type="number" id="activity-duration" min="0" max="300" 
+                                               class="form-control" placeholder="30">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Стресс -->
+                            <div class="factor-group">
+                                <h4><i class="fas fa-brain"></i> Стресс</h4>
+                                <div class="form-group">
+                                    <label>Уровень стресса (0-10)</label>
+                                    <input type="range" min="0" max="10" value="3" 
+                                           class="slider" id="stress-level">
+                                    <div class="slider-labels">
+                                        <span>Нет стресса</span>
+                                        <span>Средний</span>
+                                        <span>Сильный</span>
+                                    </div>
+                                    <div class="slider-value" id="stress-level-value">3</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Заметки -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-edit"></i> Дополнительные заметки</h3>
+                        <div class="form-group">
+                            <label for="entry-notes">Заметки (опционально)</label>
+                            <textarea id="entry-notes" class="form-control" 
+                                      rows="4" placeholder="Опишите ваше состояние подробнее..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Кнопки отправки -->
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" id="get-weather-data">
+                            <i class="fas fa-cloud-sun"></i> Получить погоду
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Сохранить запись
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Секция календаря -->
+        <section id="calendar" class="content-section">
+            <div class="section-header">
+                <h2><i class="fas fa-calendar-alt"></i> Календарь записей</h2>
+                <p>Просмотр ваших записей о самочувствии по дням</p>
+            </div>
+            
+            <div class="calendar-container">
+                <div class="calendar-controls">
+                    <button class="btn-icon" id="prev-month">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <h3 id="current-month-year">Январь 2024</h3>
+                    <button class="btn-icon" id="next-month">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                
+                <div class="calendar-grid" id="calendar-grid">
+                    <!-- Календарь будет генерироваться динамически -->
+                </div>
+            </div>
+            
+            <div class="day-details" id="day-details">
+                <!-- Детали выбранного дня будут отображаться здесь -->
+            </div>
+        </section>
+
+        <!-- Секция анализа -->
+        <section id="analysis" class="content-section">
+            <div class="section-header">
+                <h2><i class="fas fa-chart-line"></i> Анализ данных</h2>
+                <p>Статистика и корреляции между самочувствием и погодными условиями</p>
+            </div>
+            
+            <div class="analysis-content" id="analysis-content">
+                <!-- Контент анализа будет загружаться динамически -->
+                <div class="loading-container">
+                    <div class="loader"></div>
+                    <p>Загрузка данных анализа...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Секция погоды -->
+        <section id="weather" class="content-section">
+            <div class="section-header">
+                <h2><i class="fas fa-cloud-sun"></i> Прогноз погоды</h2>
+                <div class="location-selector">
+                    <input type="text" id="city-search" placeholder="Введите город..." 
+                           class="form-control" value="Москва">
+                    <button class="btn-secondary" id="search-city">
+                        <i class="fas fa-search"></i> Поиск
+                    </button>
+                </div>
+            </div>
+            
+            <div class="weather-forecast">
+                <div class="current-weather-large">
+                    <div class="weather-header">
+                        <div class="location-info">
+                            <h3 id="current-location">Москва</h3>
+                            <p id="current-date-time">Сегодня, 12:00</p>
+                        </div>
+                        <div class="weather-main-large">
+                            <div class="weather-icon-large" id="current-icon-large">☀️</div>
+                            <div class="weather-temp-large">
+                                <span id="current-temp-large">-5°</span>
+                                <p id="current-desc-large">Пасмурно</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="weather-details-grid">
+                        <div class="detail-item">
+                            <i class="fas fa-temperature-high"></i>
+                            <div class="detail-info">
+                                <span class="detail-label">Ощущается как</span>
+                                <span class="detail-value" id="feels-like">-8°</span>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <div class="detail-info">
+                                <span class="detail-label">Давление</span>
+                                <span class="detail-value" id="pressure-large">765 мм рт.ст.</span>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-wind"></i>
+                            <div class="detail-info">
+                                <span class="detail-label">Ветер</span>
+                                <span class="detail-value" id="wind-large">3 м/с, СЗ</span>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-tint"></i>
+                            <div class="detail-info">
+                                <span class="detail-label">Влажность</span>
+                                <span class="detail-value" id="humidity-large">85%</span>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-eye"></i>
+                            <div class="detail-info">
+                                <span class="detail-label">Видимость</span>
+                                <span class="detail-value" id="visibility">10 км</span>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-sun"></i>
+                            <div class="detail-info">
+                                <span class="detail-label">УФ-индекс</span>
+                                <span class="detail-value" id="uv-index">1</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Почасовой прогноз -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-clock"></i> Почасовой прогноз</h3>
+                    </div>
+                    <div class="hourly-forecast">
+                        <div class="hourly-scroll" id="hourly-forecast">
+                            <!-- Почасовой прогноз будет добавляться динамически -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Прогноз на 3 дня -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-calendar-day"></i> Прогноз на 3 дня</h3>
+                    </div>
+                    <div class="daily-forecast" id="daily-forecast">
+                        <!-- Прогноз на 3 дня будет добавляться динамически -->
+                    </div>
+                </div>
+                
+                <!-- Космическая погода -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-satellite"></i> Космическая погода</h3>
+                        <button class="btn-small" id="update-space-weather">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <div class="space-weather-content">
+                        <div class="space-weather-item">
+                            <div class="space-weather-icon">
+                                <i class="fas fa-magnet"></i>
+                            </div>
+                            <div class="space-weather-info">
+                                <h4>Геомагнитная активность</h4>
+                                <div class="kp-index">
+                                    <span class="kp-value" id="kp-index">3</span>
+                                    <span class="kp-max">/9</span>
+                                </div>
+                                <p class="space-weather-desc" id="magnetic-status">Спокойно</p>
+                            </div>
+                        </div>
+                        
+                        <div class="space-weather-item">
+                            <div class="space-weather-icon">
+                                <i class="fas fa-sun"></i>
+                            </div>
+                            <div class="space-weather-info">
+                                <h4>Солнечные вспышки</h4>
+                                <p class="space-weather-desc" id="solar-flares">Нет значительных вспышек</p>
+                            </div>
+                        </div>
+                        
+                        <div class="space-weather-impact">
+                            <h4><i class="fas fa-exclamation-triangle"></i> Влияние на здоровье</h4>
+                            <p id="space-health-impact">Магнитная активность в норме. Риск негативного воздействия на здоровье минимален.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Секция настроек -->
+        <section id="settings" class="content-section">
+            <div class="section-header">
+                <h2><i class="fas fa-cog"></i> Настройки</h2>
+                <p>Настройте приложение под ваши потребности</p>
+            </div>
+            
+            <div class="settings-container">
+                <div class="settings-card">
+                    <h3><i class="fas fa-user"></i> Профиль пользователя</h3>
+                    <div class="settings-form">
+                        <div class="form-group">
+                            <label for="settings-name">Имя</label>
+                            <input type="text" id="settings-name" class="form-control" 
+                                   value="Пользователь">
+                        </div>
+                        <div class="form-group">
+                            <label for="settings-city">Город</label>
+                            <input type="text" id="settings-city" class="form-control" 
+                                   value="Москва">
+                        </div>
+                        <div class="form-group">
+                            <label for="settings-timezone">Часовой пояс</label>
+                            <select id="settings-timezone" class="form-control">
+                                <option value="Europe/Moscow" selected>Москва (UTC+3)</option>
+                                <option value="Europe/Kaliningrad">Калининград (UTC+2)</option>
+                                <option value="Asia/Yekaterinburg">Екатеринбург (UTC+5)</option>
+                                <option value="Asia/Novosibirsk">Новосибирск (UTC+7)</option>
+                            </select>
+                        </div>
+                        <button class="btn-primary" id="save-profile">
+                            <i class="fas fa-save"></i> Сохранить профиль
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="settings-card">
+                    <h3><i class="fas fa-bell"></i> Уведомления</h3>
+                    <div class="settings-form">
+                        <div class="checkbox-group">
+                            <label class="checkbox-option">
+                                <input type="checkbox" id="notify-bad-weather" checked>
+                                <span class="checkbox-label">Уведомлять о неблагоприятной погоде</span>
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" id="notify-magnetic-storms" checked>
+                                <span class="checkbox-label">Уведомлять о магнитных бурях</span>
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" id="daily-reminder" checked>
+                                <span class="checkbox-label">Ежедневное напоминание о записи</span>
+                            </label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="reminder-time">Время напоминания</label>
+                            <input type="time" id="reminder-time" class="form-control" 
+                                   value="20:00">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="settings-card">
+                    <h3><i class="fas fa-chart-bar"></i> Настройки анализа</h3>
+                    <div class="settings-form">
+                        <div class="form-group">
+                            <label for="analysis-period">Период анализа по умолчанию</label>
+                            <select id="analysis-period" class="form-control">
+                                <option value="7">7 дней</option>
+                                <option value="30" selected>30 дней</option>
+                                <option value="90">90 дней</option>
+                                <option value="365">1 год</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Отображаемые симптомы</label>
+                            <div class="checkbox-group" id="symptoms-settings">
+                                <!-- Симптомы будут добавляться динамически -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="settings-card">
+                    <h3><i class="fas fa-database"></i> Управление данными</h3>
+                    <div class="settings-form">
+                        <button class="btn-secondary" id="export-data">
+                            <i class="fas fa-download"></i> Экспорт данных
+                        </button>
+                        <button class="btn-secondary" id="import-data">
+                            <i class="fas fa-upload"></i> Импорт данных
+                        </button>
+                        <button class="btn-danger" id="reset-data">
+                            <i class="fas fa-trash-alt"></i> Сбросить все данные
+                        </button>
+                        
+                        <div class="data-info">
+                            <p><strong>Статистика:</strong></p>
+                            <p>Всего записей: <span id="total-entries-count">0</span></p>
+                            <p>Первый день: <span id="first-entry-date">-</span></p>
+                            <p>Последний день: <span id="last-entry-date">-</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Модальные окна -->
+    <div id="modal-overlay" class="modal-overlay"></div>
+    
+    <!-- Модальное окно подтверждения -->
+    <div id="confirm-modal" class="modal">
+        <div class="modal-content">
+            <h3 id="confirm-title">Подтверждение</h3>
+            <p id="confirm-message">Вы уверены?</p>
+            <div class="modal-actions">
+                <button class="btn-secondary" id="confirm-cancel">Отмена</button>
+                <button class="btn-danger" id="confirm-ok">Подтвердить</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно просмотра записи -->
+    <div id="entry-modal" class="modal modal-large">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="entry-modal-title">Детали записи</h3>
+                <button class="btn-icon modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="entry-modal-body">
+                <!-- Содержимое будет добавляться динамически -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Уведомления -->
+    <div id="notification-container"></div>
+
+    <!-- Скрипты -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="scripts/wellness-data.js"></script>
+    <script src="scripts/weather-api.js"></script>
+    <script src="scripts/app.js"></script>
+</body>
+</html>
